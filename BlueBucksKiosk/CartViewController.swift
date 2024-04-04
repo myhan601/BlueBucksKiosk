@@ -9,6 +9,7 @@ import UIKit
 
 class CartViewController: UIViewController {
     
+    @IBOutlet weak var cartTable: UITableView!
     @IBOutlet weak var menuCnt: UILabel!
     @IBOutlet weak var menuPriceSum: UILabel!
     @IBOutlet weak var purchaseBtn: UIButton!
@@ -23,6 +24,13 @@ class CartViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // 테이블뷰 셀 추가할 때
+        let nib = UINib(nibName: TableViewCell.identifier, bundle: nil)
+        cartTable.register(nib, forCellReuseIdentifier: TableViewCell.identifier)
+        
+        cartTable.delegate = self
+        cartTable.dataSource = self
+        menuCnt.text = String(CartDataModel.count)
     }
     
     func showCancelAlert() {
@@ -62,8 +70,25 @@ class CartViewController: UIViewController {
         
         present(secondAlert, animated: true, completion: nil)
     }
-
-
 }
 
+extension CartViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 90
+    }
+}
 
+extension CartViewController: UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return CartDataModel.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.identifier, for: indexPath) as? TableViewCell else { return UITableViewCell() }
+        
+        let drink = CartDataModel[indexPath.row]
+        cell.configure(with: drink)
+        
+        return cell
+    }
+}
